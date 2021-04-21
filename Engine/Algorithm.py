@@ -11,15 +11,21 @@ def GCD_number(a: "Number", b: "Number"):
     assert a.is_integer
     assert b.is_integer
 
+    while b != ZERO:
+        t = b
+        b = a.modulus_number(b)
+        a = t
 
+    return a
 
 
 def GCD_fraction(a: "Fraction", b: "Fraction"):
-    pass
+    raise NotImplementedError
+
 
 
 def GCD_number_fraction(a: "Number", b: "Fraction"):
-    pass
+    raise NotImplementedError
 
 
-from Engine.Atom import Atom, Number, Fraction
+from Engine.Atom import Atom, Number, Fraction, ZERO

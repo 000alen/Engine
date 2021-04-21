@@ -7,10 +7,12 @@ class Atom:
     def compute(self):
         raise NotImplementedError
 
+    @property
     @abstractmethod
     def integer(self):
         raise NotImplementedError
-
+    
+    @property
     @abstractmethod
     def floating(self):
         raise NotImplementedError
@@ -29,6 +31,14 @@ class Atom:
             Fraction: self.equal_fraction
         }
         return wrapper[type(other)](other)
+
+    @abstractmethod
+    def less_than(self, other):
+        raise NotImplementedError
+
+    @abstractmethod
+    def greater_than(self, other):
+        raise NotImplementedError
 
     def add(self, other: "Atom"):
         wrapper = {
@@ -60,8 +70,8 @@ class Atom:
 
     def modulus(self, other: "Atom"):
         wrapper = {
-            Number: self.modulus_number(other),
-            Fraction: self.modulus_fraction(other)
+            Number: self.modulus_number,
+            Fraction: self.modulus_fraction
         }
         return wrapper[type(other)](other)
 
@@ -103,14 +113,15 @@ class Number(Atom):
 
     @property
     def is_integer(self):
-        return self.exponent >= 0
+        return self.exponent >= 0 or self.digits % pow(10, abs(self.exponent)) == 0
 
     def compute(self):
         return self.sign * self.digits * pow(10, self.exponent)
 
     # TODO: Check if negative sign is a problem for modulus operator
+    @property
     def integer(self):
-        if self.exponent >= 0:
+        if self.is_integer:
             return self
         
         digits = self.digits - (self.digits % pow(10, abs(self.exponent))) 
@@ -121,8 +132,9 @@ class Number(Atom):
         )
 
     # TODO: Check if negative sign is a problem for modulus operator
+    @property
     def floating(self):
-        if self.exponent >= 0:
+        if self.is_integer:
             return ZERO
         
         digits = self.digits % pow(10, abs(self.exponent))
@@ -140,7 +152,7 @@ class Number(Atom):
         )
 
     def invert(self):
-        assert not self.equal_to_number(ZERO)
+        assert not self.equal_number(ZERO)
 
         quotient = []
         exponent = self.digits_length
@@ -160,7 +172,7 @@ class Number(Atom):
             if dividend not in dividend_history:
                 dividend_history.add(dividend)
             else:
-                return Fraction(ONE, self)
+                return Fraction(self.sign, ONE, self)
 
         quotient = sum(digit * pow(10, i)
                        for i, digit in enumerate(reversed(quotient)))
@@ -184,6 +196,21 @@ class Number(Atom):
         number_digits *= pow(10, number.exponent - minimum_exponent)
 
         return self.sign == number.sign and self_digits == number_digits
+
+    def less_than_number(self, number: "Number"):
+        raise NotImplementedError
+
+        if self.equal(ZERO) and number.equal(ZERO):
+            return False
+            
+        if self.sign < number.sign:
+            return True
+
+        if self.digits < number.digits and self.exponent < number.exponent:
+            return True
+
+    def greater_than_number(self, number: "Number"):
+        return not self.less_than_number(number) and not self.equal(number)
 
     def add_number(self, number: "Number"):
         minimun_exponent = min(self.exponent, number.exponent)
@@ -215,8 +242,7 @@ class Number(Atom):
     def modulus_number(self, number: "Number"):
         assert self.is_integer
         assert number.is_integer
-
-        raise NotImplementedError
+        return number.subtract_number(number.divide_number(self).integer)
 
     def equal_fraction(self, fraction: "Fraction"):
         raise NotImplementedError
@@ -234,6 +260,13 @@ class Number(Atom):
         return Fraction.from_number(self).divide_fraction(fraction)
 
     def modulus_fraction(self, fraction: "Fraction"):
+        number = Number.from_fraction(fraction)
+        return self.modulus_number(fraction)
+
+    def less_than_fraction(self, fraction: "Fraction"):
+        raise NotImplementedError
+
+    def greater_than_fraction(self, fraction: "Fraction"):
         raise NotImplementedError
 
 
@@ -306,6 +339,14 @@ class Fraction(Atom):
             -self.denominator.exponent - exponent
         )
 
+    @property
+    def integer(self, n: int = 15):
+        return Number.from_fraction(self, n).integer
+
+    @property
+    def floating(self, n: int = 15):
+        return Number.from_fraction(self, n).floating
+
     def negate(self):
         return Fraction(-self.sign, self.numerator, self.denominator)
 
@@ -313,6 +354,12 @@ class Fraction(Atom):
         return Fraction(self.sign, self.denominator, self.numerator)
 
     def equal_number(self):
+        raise NotImplementedError
+
+    def less_than_number(self, number: "Number"):
+        raise NotImplementedError
+
+    def greater_than_number(self, number: "Number"):
         raise NotImplementedError
 
     def add_number(self, number: "Number"):
@@ -328,7 +375,11 @@ class Fraction(Atom):
         return self.divide_fraction(Fraction.from_number(number))
 
     def modulus_number(self, number: "number"):
-        raise NotImplementedError
+        self_number = Number.from_fraction(self)
+
+        assert self_number.is_integer
+
+        return self_number.modulus_number(number)
 
     def equal_fraction(self, fraction: "Fraction"):
         if self.numerator.equal(ZERO) and fraction.numerator.equal(ZERO):
@@ -342,10 +393,26 @@ class Fraction(Atom):
         return self.add_fraction(fraction.negate())
 
     def multiply_fraction(self, fraction: "Fraction"):
-        raise NotImplementedError
+        return Fraction(
+            self.sign * fraction.sign,
+            self.numerator.multiply(self.denominator),
+            self.denominator.multiply(self.denominator)
+        )
 
     def divide_fraction(self, fraction: "Fraction"):
         return self.multiply_fraction(fraction.invert())
 
     def modulus_fraction(self, fraction: "Fraction"):
+        self_number = Number.from_fraction(self)
+        number = Number.from_fraction(fraction)
+        
+        assert self_number.is_integer
+
+        return self_number.modulus_fraction(number)
+
+    def less_than_fraction(self, fraction: "Fraction"):
         raise NotImplementedError
+
+    def greater_than_fraction(self, fraction: "Fraction"):
+        raise NotImplementedError
+
