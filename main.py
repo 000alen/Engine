@@ -1,16 +1,6 @@
-from Engine.Atom import Atom, Number, Fraction, ONE, ZERO
-# from Engine.Algorithm import GCD
+from Engine.Number.Number import Numeric
+from Engine.Number.Operation import integer_division
 
-def GCD(a, b):
-    while not a.equal(b):
-        if a.greater_than(b):
-            a = a.subtract(b)
-        else:
-            b = b.subtract(a)
-    return a
-
-
-a = Number(1, 10, 0)
-b = Number(1, 7, 0)
-
-print(GCD(a, b))
+a = Numeric(100, -1)
+print(a.reduce())
+print(integer_division(10, 3))
