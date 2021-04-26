@@ -1,6 +1,8 @@
-from Engine.Number.Number import Numeric
-from Engine.Number.Operation import integer_division
+from Engine.Number.Number import Numeric, NUMERIC_ZERO, NUMERIC_ONE, Complex
 
-a = Numeric(100, -1)
-print(a.reduce())
-print(integer_division(10, 3))
+a = NUMERIC_ONE
+
+print(
+
+    a + "0.111111111111111111"
+)
