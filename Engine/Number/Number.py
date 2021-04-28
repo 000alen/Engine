@@ -14,6 +14,10 @@ class Numeric:
         self.__mantissa = mantissa
         self.__exponent = exponent
 
+    def __hash__(self):
+        x = self.reduce()
+        return hash((x.mantissa, x.exponent))
+
     def __str__(self) -> str:
         return f"{self.mantissa}e{self.exponent}"
 
@@ -139,13 +143,13 @@ class Numeric:
         return x_mantissa < y_mantissa
 
     def greather_than(self, other: "Numeric") -> bool:
-        return not self.lower_than(other) and not self.equal(other)
+        return not self.equal(other) and not self.lower_than(other)
 
     def lower_equal(self, other: "Numeric") -> bool:
-        return self.lower_than(other) or self.equal(other)
+        return self.equal(other) or self.lower_than(other)
 
     def greather_equal(self, other: "Numeric") -> bool:
-        return self.greather_than(other) or self.equal(other)
+        return self.equal(other) or self.greather_than(other)
 
     def absolute(self) -> "Numeric":
         return Numeric(
@@ -197,12 +201,14 @@ class Numeric:
         while dividend > 0:
             i += 1
 
-            while dividend < abs(self.mantissa):
+            if N(dividend) < N(self.mantissa):
+                dividend *= pow(10, N(self.mantissa) - N(dividend))
+            
+            if dividend < abs(self.mantissa):
                 dividend *= 10
-                delta_exponent += 1
 
-            quotient.append(max(q for q in range(1, 10)
-                            if dividend - (q * abs(self.mantissa)) >= 0))
+            quotient.append(dividend // abs(self.mantissa))
+
             dividend -= quotient[-1] * abs(self.mantissa)
             exponent += delta_exponent
             delta_exponent = 0
@@ -216,7 +222,7 @@ class Numeric:
                        for i, digit in enumerate(reversed(quotient)))
 
         return Numeric(
-            quotient,
+            quotient if self.mantissa > 0 else -quotient,
             -self.exponent - exponent
         )
 
@@ -236,8 +242,11 @@ class Complex:
         self.__real = real
         self.__imaginary = imaginary
 
+    def __hash__(self):
+        return hash((hash(self.real), hash(self.imaginary)))
+
     def __str__(self):
-        return f"{self.real} + {self.imaginary}i"
+        return f"{self.real}+{self.imaginary}i"
 
     def __eq__(self, other):
         return self.equal(other)
@@ -315,17 +324,43 @@ class Complex:
 
 
 class Real(Complex):
-    __imaginary: Numeric = NUMERIC_ZERO
-
     def __init__(self, real: Numeric):
-        self.__real = real
+        super().__init__(real, NUMERIC_ZERO)
+
+    def __str__(self):
+        return f"{self.real}"
+
+    def __lt__(self, other):
+        return self.lower_than(other)
+
+    def __gt__(self, other):
+        return self.greather_than(other)
+
+    def __le__(self, other):
+        return self.lower_equal(other)
+
+    def __ge__(self, other):
+        return self.greather_equal(other)
+
+    def lower_than(self, other):
+        return self.real < other.real
+
+    def greather_than(self, other):
+        return not self.equal(other) and not self.lower_than(other)
+
+    def lower_equal(self, other):
+        return self.equal(other) or self.lower_than(other)
+
+    def greather_equal(self, other):
+        return self.equal(other) or self.greather_than(other)
 
 
 class Imaginary(Complex):
-    __real: Numeric = NUMERIC_ZERO
-
     def __init__(self, imaginary: Numeric):
-        self.__imaginary = imaginary
+        super().__init__(NUMERIC_ZERO, imaginary)
+
+    def __str__(self):
+        return f"{self.imaginary}i"
 
 
 class Rational(Real):
