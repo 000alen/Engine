@@ -1,4 +1,4 @@
-from Engine.Number import DEFAULT_PRECISION
+from Engine.Number import DEFAULT_PRECISION_TAYLOR_POLYNOMIAL
 
 from functools import cache
 from math import floor, log
@@ -22,7 +22,7 @@ def factorial(x: "Numeric") -> "Numeric":
     return y
 
 
-def sin(x: "Numeric", n: int = DEFAULT_PRECISION) -> "Numeric":
+def sin(x: "Numeric", n: int = DEFAULT_PRECISION_TAYLOR_POLYNOMIAL) -> "Numeric":
     from Engine.Number.Number import Numeric, NUMERIC_ZERO
 
     y = NUMERIC_ZERO
@@ -32,7 +32,7 @@ def sin(x: "Numeric", n: int = DEFAULT_PRECISION) -> "Numeric":
     return y
 
 
-def cos(x: "Numeric", n: int = DEFAULT_PRECISION) -> "Numeric":
+def cos(x: "Numeric", n: int = DEFAULT_PRECISION_TAYLOR_POLYNOMIAL) -> "Numeric":
     from Engine.Number.Number import Numeric, NUMERIC_ZERO
 
     y = NUMERIC_ZERO
@@ -40,3 +40,7 @@ def cos(x: "Numeric", n: int = DEFAULT_PRECISION) -> "Numeric":
         y += (Numeric(-1, 0) ** i) / \
             factorial(Numeric(2 * i, 0)) * (x ** (2 * i))
     return y
+
+
+def exp(x: "Numeric", n: int = DEFAULT_PRECISION_TAYLOR_POLYNOMIAL) -> "Numeric":
+    raise NotImplementedError
