@@ -1,11 +1,6 @@
 from Engine.Algorithm import natural_modulus
 from Engine.Number import Skeleton, Number, NUMBER_ZERO, NUMBER_ONE
 
-from typing import Union
-from numba import njit
-
-NaturalSupported = Union["Natural", "Number", str, int]
-
 
 class Natural(Skeleton):
     __value: Number
@@ -89,6 +84,7 @@ class Natural(Skeleton):
             self.value * other.value
         )
 
+    # TODO: Implement Efficient Exponentiation
     def power(self, other: "Natural") -> "Natural":
         return Natural(
             self.value ** other.value
@@ -99,10 +95,15 @@ class Natural(Skeleton):
             self.value / other.value
         )
 
+    def floor_divide(self, other: "Natural") -> "Natural":
+        return Natural(
+            self.value // other.value
+        )
+
     def modulus(self, other: "Natural") -> "Natural":
-        if other.value == NUMBER_ZERO:
-            raise ZeroDivisionError
-        return natural_modulus(self, other)
+        return Natural(
+            self.value % other.value
+        )
 
 
 NATURAL_ZERO = Natural(NUMBER_ZERO)

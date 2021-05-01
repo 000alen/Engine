@@ -102,8 +102,18 @@ class Integer(Skeleton):
         )
 
     def divide(self, other: "Integer") -> "Integer":
-        return Natural(
+        return Integer(
             self.value / other.value
+        )
+
+    def floor_divide(self, other: "Integer") -> "Integer":
+        return Integer(
+            self.value // other.value
+        )
+
+    def modulus(self, other: "Integer") -> "Integer":
+        return Integer(
+            self.value % other.value
         )
 
 

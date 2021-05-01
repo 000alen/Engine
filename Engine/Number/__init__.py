@@ -1,7 +1,6 @@
 from Engine.Algorithm.Division import number_division, number_floor_division
 from Engine.Number.Operation import N
 
-from typing import Union
 from abc import ABC, abstractmethod, abstractproperty, abstractclassmethod
 
 DEFAULT_PRECISION = 15
@@ -71,9 +70,14 @@ class Skeleton(ABC):
         return self.divide(other)
 
     def __floordiv__(self, other):
-        if type(other) is not type(other):
+        if type(other) is not type(self):
             other = self.upgrade(other)
         return self.floor_divide(other)
+
+    def __mod__(self, other):
+        if type(other) is not type(self):
+            other = self.upgrade(other)
+        return self.modulus(other)
 
     @classmethod
     def upgrade(cls, other):
@@ -107,9 +111,6 @@ class Skeleton(ABC):
     @abstractproperty
     def imaginary(self):
         raise NotImplementedError
-
-
-NumberSupported = Union["Number", str, int]
 
 
 class Number(Skeleton):
@@ -176,6 +177,7 @@ class Number(Skeleton):
     def is_fractional(self) -> bool:
         return not self.is_integer
 
+    # TODO: See if there is a more efficient way to do this
     def reduce(self) -> "Number":
         n = max(i for i in range(N(self.mantissa))
                 if abs(self.mantissa) % pow(10, i) == 0)
@@ -243,6 +245,7 @@ class Number(Skeleton):
             self.exponent + other.exponent
         )
 
+    # TODO: Implement efficient exponentiation
     def power(self, other: "Number") -> "Number":
         assert other.is_integer and other >= NUMBER_ZERO
         return Number(
@@ -267,6 +270,15 @@ class Number(Skeleton):
             raise ZeroDivisionError
 
         return number_floor_division(self, other)
+
+    def modulus(self, other: "Number") -> "Number":
+        assert self.is_integer and self >= NUMBER_ZERO
+        assert other.is_integer and other >= NUMBER_ZERO
+
+        if other == NUMBER_ZERO:
+            raise ZeroDivisionError
+
+        return self - (other * self.floor_divide(other))
 
 
 NUMBER_ZERO = Number(0, 0)

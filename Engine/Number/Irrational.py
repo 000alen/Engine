@@ -28,5 +28,3 @@ class Irrational(Skeleton):
 
 IRRATIONAL_ZERO = Irrational(lambda: 0)
 IRRATIONAL_ONE = Irrational(lambda: 1)
-
-

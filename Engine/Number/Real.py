@@ -65,5 +65,3 @@ class Real(Skeleton):
 
 REAL_ZERO = Real(RATIONAL_ZERO)
 REAL_ONE = Real(RATIONAL_ONE)
-
-
