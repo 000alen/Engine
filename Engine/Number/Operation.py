@@ -2,6 +2,7 @@ from Engine.Number import DEFAULT_PRECISION_TAYLOR_POLYNOMIAL
 
 from functools import cache
 from math import floor, log
+from numba import njit
 
 
 @cache
@@ -11,9 +12,9 @@ def N(x: int) -> int:
     return floor(log(abs(x), 10)) + 1
 
 
+@njit
 def factorial(x: "Numeric") -> "Numeric":
     from Engine.Number.Number import NUMERIC_ONE
-
     y = NUMERIC_ONE
     i = NUMERIC_ONE
     while i <= x:
@@ -22,6 +23,7 @@ def factorial(x: "Numeric") -> "Numeric":
     return y
 
 
+@njit
 def sin(x: "Numeric", n: int = DEFAULT_PRECISION_TAYLOR_POLYNOMIAL) -> "Numeric":
     from Engine.Number.Number import Numeric, NUMERIC_ZERO
 
@@ -32,6 +34,7 @@ def sin(x: "Numeric", n: int = DEFAULT_PRECISION_TAYLOR_POLYNOMIAL) -> "Numeric"
     return y
 
 
+@njit
 def cos(x: "Numeric", n: int = DEFAULT_PRECISION_TAYLOR_POLYNOMIAL) -> "Numeric":
     from Engine.Number.Number import Numeric, NUMERIC_ZERO
 
@@ -42,5 +45,6 @@ def cos(x: "Numeric", n: int = DEFAULT_PRECISION_TAYLOR_POLYNOMIAL) -> "Numeric"
     return y
 
 
+@njit
 def exp(x: "Numeric", n: int = DEFAULT_PRECISION_TAYLOR_POLYNOMIAL) -> "Numeric":
     raise NotImplementedError
