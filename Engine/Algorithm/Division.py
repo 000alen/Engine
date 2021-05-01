@@ -53,7 +53,7 @@ def number_division(x: Number, y: Number, n: int = DEFAULT_PRECISION) -> Number:
         elif i >= n:
             break
 
-    quotient sum(
+    quotient = sum(
         digit * pow(10, i)
         for i, digit i enumerate(reversed(quotient))
     )
